@@ -4,6 +4,7 @@ import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
+import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.photo.Photo;
 
@@ -19,7 +20,7 @@ public class processingTools {
 		// Kernel 3x3
 		//Mat kernel = Mat.ones(3, 3, CvType.CV_32F);
 		
-		Mat kernel = new Mat(3,3, CvType.CV_32F){
+		Mat kernel = new Mat(3,3, CvType.CV_8U){
             {
                put(1,1,1);
                put(1,1,1);
@@ -46,12 +47,14 @@ public class processingTools {
 		// Denoising
 		Photo.fastNlMeansDenoising(img, tmp, 21, 7, 7);
 
-		Imgproc.morphologyEx(img, tmp, Imgproc.MORPH_RECT, kernel, anchor, 4);
-		Imgproc.morphologyEx(tmp, tmp, Imgproc.MORPH_OPEN, kernel, anchor, 5);
+		Imgproc.morphologyEx(img, tmp, Imgproc.MORPH_RECT, kernel, anchor, 3);
+		Imgproc.morphologyEx(tmp, tmp, Imgproc.MORPH_OPEN, kernel, anchor, 4);
+		System.out.println(tmp);
+		Highgui.imwrite("output.jpg", tmp);
 
 		// Circles detection using Hough
-		Imgproc.HoughCircles(tmp, circles, Imgproc.CV_HOUGH_GRADIENT, 1.5, 50, 100, 90, 20, 120);
-
+		Imgproc.HoughCircles(tmp, circles, Imgproc.CV_HOUGH_GRADIENT, 1.5, 30, 100, 90, 20, 120);
+		
 		
 		if (circles.cols() > 0)
 			for (int x = 0; x < circles.cols(); x++) {
