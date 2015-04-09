@@ -1,24 +1,31 @@
 package com.example.coinscanner;
-
 import java.io.IOException;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import android.content.Context;
 import android.hardware.Camera;
+import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PreviewCallback;
+import android.hardware.Camera.Size;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 /** A basic Camera preview class */
 public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
-    private static final String TAG = "YOLLOOOO";
+    private static final String TAG = "CamPrev";
+	private static final int MAX_HORIZONTAL_SCREEN_RESOLUTION = 4000;
 	private SurfaceHolder mHolder;
     private Camera mCamera;
     private PreviewCallback prevCB = new PreviewCallback() {
 		
 		@Override
 		public void onPreviewFrame(byte[] data, Camera camera) {
-			// TODO realtime processing
+			Bitmap sourceFrame = BitmapFactory.decodeByteArray(data, 0, data.length);
+			Mat matSourceFrame = new Mat(sourceFrame.getWidth(), sourceFrame.getHeight(), CvType.CV_8UC4);
 		}
 	};
 
@@ -35,15 +42,49 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
     }
 
     public void surfaceCreated(SurfaceHolder holder) {
-        // The Surface has been created, now tell the camera where to draw the preview.
+    	Camera.Parameters params = mCamera.getParameters();
+    	List<Size> camResolutions = params.getSupportedPictureSizes();
+		Collections.sort(camResolutions, new Comparator<Size>()
+		{
+			@Override
+			public int compare(Size arg0, Size arg1)
+			{
+				if (arg1.width != arg0.width)
+				{
+					return arg0.width - arg1.width;
+				}
+				return arg0.height - arg1.height;
+			}
+		});
+		Size tmp = camResolutions.get(0);
+		for (Size s : camResolutions)
+		{
+			if (s.width < MAX_HORIZONTAL_SCREEN_RESOLUTION && s.width > tmp.width)
+				tmp = s;
+		}
+		Log.d("ZGEG",tmp.width + " " +tmp.height);
+		params.setPictureSize(tmp.width, tmp.height);
+		mCamera.setParameters(params);
+    	
+    	// The Surface has been created, now tell the camera where to draw the preview.
         try {
             mCamera.setPreviewDisplay(holder);
             mCamera.setDisplayOrientation(90);
-            mCamera.setPreviewCallback(prevCB); //set preview callback
             mCamera.startPreview();
         } catch (IOException e) {
             Log.d(TAG, "Error setting camera preview: " + e.getMessage());
         }
+    }
+    
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+    	mCamera.autoFocus(new AutoFocusCallback() {	
+			@Override
+			public void onAutoFocus(boolean success, Camera camera) {
+				//nothing
+			}
+		});
+    	return super.onTouchEvent(event);
     }
 
     public void surfaceDestroyed(SurfaceHolder holder) {
@@ -68,6 +109,7 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
         // set preview size and make any resize, rotate or
         // reformatting changes here
+        mCamera.setPreviewCallback(prevCB); //set preview callback
 
         // start preview with new settings
         try {
