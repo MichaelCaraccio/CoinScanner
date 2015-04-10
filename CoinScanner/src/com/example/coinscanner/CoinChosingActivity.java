@@ -1,7 +1,5 @@
 package com.example.coinscanner;
 
-import java.io.FileDescriptor;
-
 import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -19,16 +17,18 @@ public class CoinChosingActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_coin_chosing);
-		
-		RelativeLayout canvas = (RelativeLayout) findViewById(R.id.canvas_image);                  
+
+		RelativeLayout canvas = (RelativeLayout) findViewById(R.id.canvas_image);
 		ImageView imageView = new ImageView(getApplicationContext());
-		Bitmap mainImage = BitmapFactory.decodeFile(getIntent().getStringExtra("dirname") + "/" + getIntent().getStringExtra("filename"));
+		Bitmap mainImage = BitmapFactory.decodeFile(getIntent().getStringExtra("dirname") + "/"
+				+ getIntent().getStringExtra("filename"));
 		Matrix matrix = new Matrix();
-	    matrix.postRotate(90);
-	    Bitmap rotated = Bitmap.createBitmap(mainImage, 0, 0, mainImage.getWidth(), mainImage.getHeight(), matrix, true);
+		matrix.postRotate(90);
+		Bitmap rotated = Bitmap
+				.createBitmap(mainImage, 0, 0, mainImage.getWidth(), mainImage.getHeight(), matrix, true);
 		imageView.setImageBitmap(rotated);
 		canvas.addView(imageView);
-		
+
 		Toast.makeText(getApplicationContext(), "Chose a coin and give the value of it !", Toast.LENGTH_LONG).show();
 	}
 
@@ -50,5 +50,5 @@ public class CoinChosingActivity extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-	
+
 }
