@@ -15,6 +15,7 @@
     android:layout_height="fill_parent"
     android:gravity="center"
     android:orientation="vertical" >
+
 	    <Button
 	        android:id="@+id/btnScan"
 	        android:layout_width="wrap_content"
