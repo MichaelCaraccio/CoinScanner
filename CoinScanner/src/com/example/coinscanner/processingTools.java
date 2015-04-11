@@ -88,7 +88,7 @@ public class processingTools {
 		return circles;
 	}
 
-	public static Mat findCircles(Mat image) {
+	public static Mat findCircles(Mat image){
 
 		// Kernel 3x3
 		Mat kernel = Mat.ones(3, 3, CvType.CV_32F);
@@ -100,7 +100,7 @@ public class processingTools {
 		Point anchor = new Point(-1, -1);
 
 		// Image Colored to grayscale
-		Imgproc.cvtColor(image, image, Imgproc.COLOR_RGB2GRAY);
+		//Imgproc.cvtColor(image, image, Imgproc.COLOR_RGB2GRAY);
 
 		// Temp matrix
 		Mat tmp = new Mat(image.width(), image.height(), image.type());
@@ -110,14 +110,13 @@ public class processingTools {
 
 		Imgproc.morphologyEx(image, tmp, Imgproc.MORPH_RECT, kernel, anchor, 2);
 		Imgproc.morphologyEx(tmp, tmp, Imgproc.MORPH_OPEN, kernel, anchor, 3);
-
+		
 		// Circles detection using Hough
-		Imgproc.HoughCircles(tmp, circles, Imgproc.CV_HOUGH_GRADIENT, 1.5, 50, 100, 90, 20, 120);
+		Imgproc.HoughCircles(tmp, circles, Imgproc.CV_HOUGH_GRADIENT, 1.5, 50, 100, 90, 10, 120);
 
 		// Image gray to color
-		Imgproc.cvtColor(tmp, tmp, Imgproc.COLOR_GRAY2BGR);
-
-		if (circles.cols() > 0)
+		/*Imgproc.cvtColor(tmp, tmp, Imgproc.COLOR_GRAY2BGR);
+		if (circles.cols() > 0){
 			for (int x = 0; x < circles.cols(); x++) {
 				double vCircle[] = circles.get(0, x);
 				System.out.println(x + ": " + vCircle[0] + " | " + vCircle[1] + " | " + vCircle[2]);
@@ -128,6 +127,9 @@ public class processingTools {
 				// draw the found circle
 				Core.circle(tmp, pt, (int) radius, new Scalar(0, 255, 0), 2);
 			}
+		}else{
+			System.out.println("YOLO Aucun cercle trouve");
+		}*/
 		return circles;
 	}
 }
