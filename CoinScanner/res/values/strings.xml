@@ -11,7 +11,7 @@
     <string name="title_activity_camera">CameraActivity</string>
     <string name="title_activity_coin_chosing">Choose a coin</string>
     <string name="title_activity_about">About</string>
- 	<string name="main_text_activity_about">Created by Kilian Brandt and Michael Caraccio</string>
+ 	<string name="main_text_activity_about">Created by Kilian Brandt-Dit-Grieurin and Michael Caraccio \nProf. François Tièche</string>
  	<string name="title_activity_help">Help</string>
  	<string name="main_text_activity_help">How to use CoinScanner?</string>
  	<string name="main_text_activity_explaination">1. Put some coins on an homogeneous surface \n 2. Click on "Scan some coins" button \n 
