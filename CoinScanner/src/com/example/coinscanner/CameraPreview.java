@@ -34,13 +34,12 @@ import android.widget.ImageView;
 public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
 
 	private static final String TAG = "CamPrev";
-	private static final int MAX_HORIZONTAL_SCREEN_RESOLUTION = 2000;
+	private static final int MAX_HORIZONTAL_SCREEN_RESOLUTION = 4000;
 
 	private SurfaceHolder mHolder;
 	private Camera mCamera;
 	private boolean bProcessing = false;
 	private Bitmap bitmap = null;
-	private int[] pixels = null;
 	private byte[] FrameData = null;
 	private ImageView MyCameraPreview = null;
 	private int PreviewSizeWidth;
@@ -53,13 +52,11 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 		@Override
 		public void onPreviewFrame(byte[] data, Camera camera) {
 
-			System.out.println("onPreviewFrame");
-
-			// We only accept the NV21(YUV420) format.
 			if (!bProcessing) {
 				FrameData = data;
 				mHandler.post(DoImageProcessing);
 			}
+
 			/*
 			 * Size previewSize = camera.getParameters().getPreviewSize();
 			 * YuvImage yuvimage = new YuvImage(data, ImageFormat.NV21,
@@ -132,7 +129,6 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 		PreviewSizeHeight = previewSize.height;
 
 		bitmap = Bitmap.createBitmap(PreviewSizeWidth, PreviewSizeHeight, Bitmap.Config.ARGB_8888);
-		pixels = new int[PreviewSizeWidth * PreviewSizeHeight];
 
 		// Install a SurfaceHolder.Callback so we get notified when the
 		// underlying surface is created and destroyed.
@@ -231,19 +227,23 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 
 	private Runnable DoImageProcessing = new Runnable() {
 		public void run() {
-			//Log.i("Processing", "DoImageProcessing():");
+
 			bProcessing = true;
 
 			Mat mat = new Mat(PreviewSizeHeight, PreviewSizeWidth, CvType.CV_8UC1);
 			mat.put(0, 0, FrameData);
-
+			
 			// List of matrix circles
 			Mat circles = new Mat();
 
 			// Appel de la methode
 			circles = processingTools.findCircles(mat);
 
-			Imgproc.cvtColor(mat, mat, Imgproc.COLOR_GRAY2BGR);
+			// L'image sera en n/b mais les cercles en couleur
+			Mat finalimage = new Mat(PreviewSizeHeight, PreviewSizeWidth, CvType.CV_8UC1);
+			finalimage.put(0, 0, FrameData);
+			Imgproc.cvtColor(finalimage, finalimage, Imgproc.COLOR_GRAY2RGB, 0);
+
 
 			// Dessiner les cercles sur l'ecrans
 			if (circles.cols() > 0) {
@@ -255,13 +255,13 @@ public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback
 					float radius = (int) Math.round(vCircle[2]);
 
 					// draw the found circle
-					Core.circle(mat, pt, (int) radius, new Scalar(0, 255, 0), 2);
+					Core.circle(finalimage, pt, (int) radius, new Scalar(0, 255, 0), 2);
 				}
 			} else {
 				Log.i("Processing", "Aucun cercles trouves");
 			}
 
-			Utils.matToBitmap(mat, bitmap);
+			Utils.matToBitmap(finalimage, bitmap);
 			MyCameraPreview.setImageBitmap(bitmap);
 			MyCameraPreview.setRotation(90);
 

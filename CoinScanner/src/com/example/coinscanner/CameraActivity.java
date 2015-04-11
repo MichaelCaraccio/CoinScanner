@@ -31,12 +31,11 @@ public class CameraActivity extends Activity {
 	private CameraPreview mPreview;
 	private ImageView MyCameraPreview = null;
 
-
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_camera);
-		
+
 		MyCameraPreview = new ImageView(this);
 
 		// Create an instance of Camera
@@ -45,9 +44,6 @@ public class CameraActivity extends Activity {
 		mPreview = new CameraPreview(this, mCamera, MyCameraPreview);
 		FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
 		preview.addView(mPreview);
-
-        
-
 
 		RelativeLayout btnLayout = (RelativeLayout) findViewById(R.id.btn_layout);
 		btnLayout.bringToFront();
@@ -63,9 +59,8 @@ public class CameraActivity extends Activity {
 
 			}
 		});
-		
-        preview.addView(MyCameraPreview, new LayoutParams(640, 480));
 
+		preview.addView(MyCameraPreview, new LayoutParams(640, 480));
 	}
 
 	private PictureCallback mPicture = new PictureCallback() {
