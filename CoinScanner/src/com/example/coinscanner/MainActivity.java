@@ -24,8 +24,8 @@ public class MainActivity extends Activity {
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_9, this, mLoaderCallback);
 
 		// Scan button
-		Button button = (Button) findViewById(R.id.btnScan);
-		button.setOnClickListener(new View.OnClickListener() {
+		Button button_scan = (Button) findViewById(R.id.btnScan);
+		button_scan.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent cameraIntent = new Intent(MainActivity.this, CameraActivity.class);
@@ -33,9 +33,19 @@ public class MainActivity extends Activity {
 			}
 		});
 		
+		// Help button
+		Button button_help = (Button) findViewById(R.id.btnHelp);
+		button_help.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent helpIntent = new Intent(MainActivity.this, HelpActivity.class);
+				startActivity(helpIntent);
+			}
+		});
+		
 		// About button
-		Button button_scan = (Button) findViewById(R.id.btnAbout);
-		button_scan.setOnClickListener(new View.OnClickListener() {
+		Button button_about = (Button) findViewById(R.id.btnAbout);
+		button_about.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent aboutIntent = new Intent(MainActivity.this, AboutActivity.class);

@@ -12,4 +12,6 @@
     <string name="title_activity_coin_chosing">Choose a coin</string>
     <string name="title_activity_about">About</string>
  	<string name="main_text_activity_about">Created by Kilian Brandt and Michael Caraccio</string>
+ 	<string name="title_activity_help">Help</string>
+ 	<string name="main_text_activity_help">Created by Kilian Brandt and Michael Caraccio</string>
 </resources>
