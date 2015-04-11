@@ -20,15 +20,26 @@ public class MainActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		// On check si OPENCV se charge correctement
+		// Check if opencv is opencv manager is installed and loaded
 		OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_9, this, mLoaderCallback);
 
+		// Scan button
 		Button button = (Button) findViewById(R.id.btnScan);
 		button.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				Intent cameraIntent = new Intent(MainActivity.this, CameraActivity.class);
 				startActivity(cameraIntent);
+			}
+		});
+		
+		// About button
+		Button button_scan = (Button) findViewById(R.id.btnAbout);
+		button_scan.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View v) {
+				Intent aboutIntent = new Intent(MainActivity.this, AboutActivity.class);
+				startActivity(aboutIntent);
 			}
 		});
 	}
