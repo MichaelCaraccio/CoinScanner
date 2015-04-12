@@ -11,7 +11,6 @@ import java.util.List;
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
 import android.app.Activity;
@@ -42,9 +41,8 @@ public class CameraActivity extends Activity {
 	private Camera mCamera;
 	private CameraPreview mPreview;
 	private ImageView MyCameraPreview = null;
-	
-	private static final int MAX_HORIZONTAL_SCREEN_RESOLUTION = 2000;
 
+	private static final int MAX_HORIZONTAL_SCREEN_RESOLUTION = 2000;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -54,7 +52,7 @@ public class CameraActivity extends Activity {
 		MyCameraPreview = new ImageView(this);
 		// Create an instance of Camera
 		mCamera = getCameraInstance();
-		configureCamera();
+		// configureCamera();
 
 		// Create our Preview view and set it as the content of our activity.
 		mPreview = new CameraPreview(this, mCamera, MyCameraPreview);
@@ -73,7 +71,7 @@ public class CameraActivity extends Activity {
 					mCamera.autoFocus(new AutoFocusCallback() {
 						@Override
 						public void onAutoFocus(boolean success, Camera camera) {
-								camera.takePicture(null, null, mPicture);
+							camera.takePicture(null, null, mPicture);
 						}
 					});
 				}
@@ -83,7 +81,7 @@ public class CameraActivity extends Activity {
 
 		preview.addView(MyCameraPreview, new LayoutParams(640, 480));
 	}
-	
+
 	private void configureCamera() {
 		Camera.Parameters params = mCamera.getParameters();
 		List<Size> camResolutions = params.getSupportedPictureSizes();
@@ -98,8 +96,7 @@ public class CameraActivity extends Activity {
 		});
 		Size tmp = camResolutions.get(0);
 		for (Size s : camResolutions) {
-			if (s.width < MAX_HORIZONTAL_SCREEN_RESOLUTION
-					&& s.width > tmp.width) {
+			if (s.width < MAX_HORIZONTAL_SCREEN_RESOLUTION && s.width > tmp.width) {
 				tmp = s;
 			}
 		}
@@ -112,15 +109,14 @@ public class CameraActivity extends Activity {
 	private PictureCallback mPicture = new PictureCallback() {
 
 		@Override
-		public void onPictureTaken(byte[] data, Camera camera) {					
+		public void onPictureTaken(byte[] data, Camera camera) {
 			Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
 			Bitmap myBitmap32 = bmp.copy(Bitmap.Config.ARGB_8888, true);
-			Mat image = new Mat(bmp.getHeight(), bmp.getWidth(),
-					CvType.CV_8UC3);
+			Mat image = new Mat(bmp.getHeight(), bmp.getWidth(), CvType.CV_8UC3);
 			Utils.bitmapToMat(myBitmap32, image);
 			Imgproc.cvtColor(image, image, Imgproc.COLOR_BGR2GRAY);
 			ArrayList<MyCircle> circlesList = processingTools.findCircles(image);
-			
+
 			String path = Environment.getExternalStorageDirectory().toString();
 			OutputStream fOutputStream = null;
 			String fileName = "coinsframe.jpg";
@@ -148,7 +144,7 @@ public class CameraActivity extends Activity {
 			}
 
 			Intent coinChoosingActivity = new Intent(CameraActivity.this, CoinChosingActivity.class);
-			coinChoosingActivity.putExtra("filename", fileName); 
+			coinChoosingActivity.putExtra("filename", fileName);
 			coinChoosingActivity.putExtra("dirname", dirName);
 			coinChoosingActivity.putExtra("circles", circlesList);
 			startActivity(coinChoosingActivity);
@@ -168,20 +164,27 @@ public class CameraActivity extends Activity {
 
 	@Override
 	protected void onPause() {
-		mCamera.stopPreview();
 		super.onPause();
+		
+		if (mCamera != null)
+			mCamera.stopPreview();
 	}
 
 	@Override
 	protected void onResume() {
-		mCamera.startPreview();
 		super.onResume();
+		
+		if (mCamera == null)
+			mCamera.startPreview();
 	}
 
 	@Override
 	protected void onDestroy() {
-		mCamera.stopPreview();
-		mCamera.release();
 		super.onDestroy();
+
+		if (mCamera != null) {
+			mCamera.stopPreview();
+			mCamera.release();
+		}
 	}
 }
