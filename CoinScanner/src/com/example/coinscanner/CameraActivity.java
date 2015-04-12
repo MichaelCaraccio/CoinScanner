@@ -27,7 +27,6 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -50,6 +49,7 @@ public class CameraActivity extends Activity {
 		setContentView(R.layout.activity_camera);
 
 		MyCameraPreview = new ImageView(this);
+
 		// Create an instance of Camera
 		mCamera = getCameraInstance();
 		configureCamera();
@@ -78,8 +78,6 @@ public class CameraActivity extends Activity {
 
 			}
 		});
-
-		preview.addView(MyCameraPreview, new LayoutParams(640, 480));
 	}
 
 	private void configureCamera() {
@@ -106,20 +104,20 @@ public class CameraActivity extends Activity {
 			}
 		});
 		
-		Size tmp = pictureResolutions.get(0);
+		Size tmpPictureSize = pictureResolutions.get(0);
 		for (Size s : pictureResolutions) {
-			if (s.width < MAX_HORIZONTAL_SCREEN_RESOLUTION && s.width > tmp.width) {
-				tmp = s;
+			if (s.width < MAX_HORIZONTAL_SCREEN_RESOLUTION && s.width > tmpPictureSize.width) {
+				tmpPictureSize = s;
 			}
 		}
-		params.setPictureSize(tmp.width, tmp.height);
-		
+		params.setPictureSize(tmpPictureSize.width, tmpPictureSize.height);
+		Size tmpPreviewSize = previewResolutions.get(0);
 		for (Size s : previewResolutions) {
-			if (s.width < MAX_HORIZONTAL_SCREEN_RESOLUTION && s.width > tmp.width) {
-				tmp = s;
+			if (s.width < MAX_HORIZONTAL_SCREEN_RESOLUTION && s.width > tmpPreviewSize.width) {
+				tmpPreviewSize = s;
 			}
 		}
-		params.setPreviewSize(tmp.width, tmp.height);
+		params.setPreviewSize(tmpPreviewSize.width, tmpPreviewSize.height);
 		mCamera.setParameters(params);
 	}
 
@@ -178,7 +176,7 @@ public class CameraActivity extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		
+
 		if (mCamera != null)
 			mCamera.stopPreview();
 	}
@@ -186,7 +184,7 @@ public class CameraActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
+
 		if (mCamera == null)
 			mCamera.startPreview();
 	}

@@ -1,29 +1,11 @@
 package com.example.coinscanner;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-
-import org.opencv.android.Utils;
-import org.opencv.core.Core;
-import org.opencv.core.CvType;
-import org.opencv.core.Mat;
-import org.opencv.core.Point;
-import org.opencv.core.Scalar;
-import org.opencv.imgproc.Imgproc;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.drawable.shapes.OvalShape;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
-import android.hardware.Camera.PreviewCallback;
-import android.hardware.Camera.Size;
-import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -33,33 +15,20 @@ import android.widget.ImageView;
 /** A basic Camera preview class */
 @SuppressLint("ClickableViewAccessibility")
 @SuppressWarnings({ "deprecation" })
-public class CameraPreview extends SurfaceView implements
-		SurfaceHolder.Callback {
+public class CameraPreview extends SurfaceView implements SurfaceHolder.Callback {
 
 	private static final String TAG = "CamPrev";
 
 	private SurfaceHolder mHolder;
 	private Camera mCamera;
-	private ImageView MyCameraPreview = null;
-	private int PreviewSizeWidth;
-	private int PreviewSizeHeight;
-
-
-
 
 	public CameraPreview(Context context, Camera camera, ImageView CameraPreview) {
 		super(context);
 		mCamera = camera;
-		MyCameraPreview = CameraPreview;
-		Size previewSize = camera.getParameters().getPictureSize();
-		PreviewSizeWidth = previewSize.width;
-		PreviewSizeHeight = previewSize.height;
 
-
-		// Install a SurfaceHolder.Callback so we get notified when the
-		// underlying surface is created and destroyed.
 		mHolder = getHolder();
 		mHolder.addCallback(this);
+		
 		// deprecated setting, but required on Android versions prior to 3.0
 		mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
 
