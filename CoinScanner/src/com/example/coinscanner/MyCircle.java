@@ -2,9 +2,6 @@ package com.example.coinscanner;
 
 import java.io.Serializable;
 
-import android.os.Parcel;
-import android.os.Parcelable;
-
 public class MyCircle implements Serializable{
 
 	

@@ -32,21 +32,21 @@
         </activity>
         
         <activity
-            android:name=".CameraActivity"
+            android:name="com.example.coinscanner.CameraActivity"
             android:label="@string/title_activity_camera"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
         </activity>
         
         <activity
-            android:name=".HelpActivity"
+            android:name="com.example.coinscanner.HelpActivity"
             android:label="@string/title_activity_help"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
         </activity>
         
         <activity
-            android:name=".AboutActivity"
+            android:name="com.example.coinscanner.AboutActivity"
             android:label="@string/title_activity_about"
             android:screenOrientation="portrait"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >

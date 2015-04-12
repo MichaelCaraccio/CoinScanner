@@ -52,7 +52,7 @@ public class CameraActivity extends Activity {
 		MyCameraPreview = new ImageView(this);
 		// Create an instance of Camera
 		mCamera = getCameraInstance();
-		// configureCamera();
+		configureCamera();
 
 		// Create our Preview view and set it as the content of our activity.
 		mPreview = new CameraPreview(this, mCamera, MyCameraPreview);
@@ -84,8 +84,9 @@ public class CameraActivity extends Activity {
 
 	private void configureCamera() {
 		Camera.Parameters params = mCamera.getParameters();
-		List<Size> camResolutions = params.getSupportedPictureSizes();
-		Collections.sort(camResolutions, new Comparator<Size>() {
+		List<Size> pictureResolutions = params.getSupportedPictureSizes();
+		List<Size> previewResolutions = params.getSupportedPreviewSizes();
+		Collections.sort(pictureResolutions, new Comparator<Size>() {
 			@Override
 			public int compare(Size arg0, Size arg1) {
 				if (arg1.width != arg0.width) {
@@ -94,14 +95,30 @@ public class CameraActivity extends Activity {
 				return arg0.height - arg1.height;
 			}
 		});
-		Size tmp = camResolutions.get(0);
-		for (Size s : camResolutions) {
+		
+		Collections.sort(previewResolutions, new Comparator<Size>() {
+			@Override
+			public int compare(Size arg0, Size arg1) {
+				if (arg1.width != arg0.width) {
+					return arg0.width - arg1.width;
+				}
+				return arg0.height - arg1.height;
+			}
+		});
+		
+		Size tmp = pictureResolutions.get(0);
+		for (Size s : pictureResolutions) {
 			if (s.width < MAX_HORIZONTAL_SCREEN_RESOLUTION && s.width > tmp.width) {
 				tmp = s;
 			}
 		}
-
 		params.setPictureSize(tmp.width, tmp.height);
+		
+		for (Size s : previewResolutions) {
+			if (s.width < MAX_HORIZONTAL_SCREEN_RESOLUTION && s.width > tmp.width) {
+				tmp = s;
+			}
+		}
 		params.setPreviewSize(tmp.width, tmp.height);
 		mCamera.setParameters(params);
 	}
@@ -122,19 +139,15 @@ public class CameraActivity extends Activity {
 			String fileName = "coinsframe.jpg";
 			String dirName = path + "/coinscanner/";
 			File file = new File(dirName, fileName);
-			Log.d("LOL", file.toString());
 			if (!file.exists()) {
 				file.getParentFile().mkdirs();
 			}
 
 			try {
 				fOutputStream = new FileOutputStream(file);
-
 				bmp.compress(Bitmap.CompressFormat.JPEG, 100, fOutputStream);
-
 				fOutputStream.flush();
 				fOutputStream.close();
-
 				MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), file.getName(),
 						file.getName());
 			} catch (Exception e) {
