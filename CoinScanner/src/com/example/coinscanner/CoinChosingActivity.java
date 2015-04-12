@@ -118,7 +118,8 @@ public class CoinChosingActivity extends Activity {
 					Coin selected = coins[which];
 					MyCircle selectedCircle = circlesList.get(circleIndex);
 					double monneySum = calculateMonneySum(selected, selectedCircle);
-					Toast.makeText(getApplicationContext(), "You own " + String.format("%.2f", monneySum) + " CHF", Toast.LENGTH_LONG).show();
+					Toast.makeText(getApplicationContext(), "You own " + String.format("%.2f", monneySum) + " CHF",
+							Toast.LENGTH_LONG).show();
 				}
 			}
 		});
@@ -140,7 +141,6 @@ public class CoinChosingActivity extends Activity {
 					coinKey = key;
 				}
 			}
-			Log.d("LOL", ratios.get(Double.valueOf(coinKey)).getValue()+"");
 			monney += ratios.get(Double.valueOf(coinKey)).getValue();
 			coinKey = -1;
 			diff = 10000;

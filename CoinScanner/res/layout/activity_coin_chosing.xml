@@ -5,9 +5,9 @@
     tools:context="com.example.coinscanner.CoinChosingActivity" >
 
     <RelativeLayout
+        android:id="@+id/canvas_image"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/canvas_image" >
+        android:layout_height="match_parent" >
     </RelativeLayout>
 
 </RelativeLayout>

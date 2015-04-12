@@ -32,7 +32,7 @@ public class MainActivity extends Activity {
 				startActivity(cameraIntent);
 			}
 		});
-		
+
 		// Help button
 		Button button_help = (Button) findViewById(R.id.btnHelp);
 		button_help.setOnClickListener(new View.OnClickListener() {
@@ -42,7 +42,7 @@ public class MainActivity extends Activity {
 				startActivity(helpIntent);
 			}
 		});
-		
+
 		// About button
 		Button button_about = (Button) findViewById(R.id.btnAbout);
 		button_about.setOnClickListener(new View.OnClickListener() {

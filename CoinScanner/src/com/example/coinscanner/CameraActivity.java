@@ -24,13 +24,11 @@ import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 @SuppressWarnings("deprecation")
@@ -59,10 +57,9 @@ public class CameraActivity extends Activity {
 		FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
 		preview.addView(mPreview);
 
-		RelativeLayout btnLayout = (RelativeLayout) findViewById(R.id.btn_layout);
-		btnLayout.bringToFront();
-
 		Button btnCapture = (Button) findViewById(R.id.btn_capture);
+		btnCapture.bringToFront();
+
 		btnCapture.setOnClickListener(new OnClickListener() {
 
 			@Override
@@ -93,7 +90,7 @@ public class CameraActivity extends Activity {
 				return arg0.height - arg1.height;
 			}
 		});
-		
+
 		Collections.sort(previewResolutions, new Comparator<Size>() {
 			@Override
 			public int compare(Size arg0, Size arg1) {
@@ -103,7 +100,7 @@ public class CameraActivity extends Activity {
 				return arg0.height - arg1.height;
 			}
 		});
-		
+
 		Size tmpPictureSize = pictureResolutions.get(0);
 		for (Size s : pictureResolutions) {
 			if (s.width < MAX_HORIZONTAL_SCREEN_RESOLUTION && s.width > tmpPictureSize.width) {

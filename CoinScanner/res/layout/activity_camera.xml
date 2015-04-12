@@ -16,4 +16,5 @@
         android:layout_marginLeft="80dip"
         android:layout_marginRight="80dip"
         android:text="@string/btn_capture" />
+
 </FrameLayout>
