@@ -15,20 +15,24 @@
     android:layout_height="fill_parent"
     android:gravity="center"
     android:orientation="vertical" >
+
 	    <Button
 	        android:id="@+id/btnScan"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="@string/btn_scan" />
+	        android:text="@string/btn_scan" 
+	        android:width="200dp"/>
 	    <Button
 	        android:id="@+id/btnHelp"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="@string/btn_help" />
+	        android:text="@string/btn_help"
+	        android:width="200dp" />
 	    <Button
 	        android:id="@+id/btnAbout"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:text="@string/btn_about" />
+	        android:text="@string/btn_about" 
+	        android:width="200dp"/>
 	</LinearLayout>
 </RelativeLayout>
