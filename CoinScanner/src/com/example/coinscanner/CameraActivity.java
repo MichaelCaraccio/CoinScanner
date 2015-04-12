@@ -57,13 +57,16 @@ public class CameraActivity extends Activity {
 		FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
 		preview.addView(mPreview);
 
+		//get the capture button and bring it to front
 		Button btnCapture = (Button) findViewById(R.id.btn_capture);
 		btnCapture.bringToFront();
 
+		//add a listener to catch click event
 		btnCapture.setOnClickListener(new OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
+				//on click if camera is not null autofocus and take picture
 				if (mCamera != null) {
 					mCamera.autoFocus(new AutoFocusCallback() {
 						@Override
@@ -77,10 +80,15 @@ public class CameraActivity extends Activity {
 		});
 	}
 
+	/***
+	 * Configure the camera (size of picture taken and size of preview)
+	 */
 	private void configureCamera() {
+		// first get and sort the available resolutions
 		Camera.Parameters params = mCamera.getParameters();
 		List<Size> pictureResolutions = params.getSupportedPictureSizes();
 		List<Size> previewResolutions = params.getSupportedPreviewSizes();
+		//sort with comparator
 		Collections.sort(pictureResolutions, new Comparator<Size>() {
 			@Override
 			public int compare(Size arg0, Size arg1) {
@@ -91,6 +99,7 @@ public class CameraActivity extends Activity {
 			}
 		});
 
+		//sort with comparator
 		Collections.sort(previewResolutions, new Comparator<Size>() {
 			@Override
 			public int compare(Size arg0, Size arg1) {
@@ -101,6 +110,7 @@ public class CameraActivity extends Activity {
 			}
 		});
 
+		//iterate on sorted available resolutions and get the best one (the biggest resolution with width < 2000px)
 		Size tmpPictureSize = pictureResolutions.get(0);
 		for (Size s : pictureResolutions) {
 			if (s.width < MAX_HORIZONTAL_SCREEN_RESOLUTION && s.width > tmpPictureSize.width) {
@@ -118,17 +128,23 @@ public class CameraActivity extends Activity {
 		mCamera.setParameters(params);
 	}
 
+	/**
+	 * callback when a picture is taken
+	 */
 	private PictureCallback mPicture = new PictureCallback() {
 
 		@Override
 		public void onPictureTaken(byte[] data, Camera camera) {
+			//convert the byte data into bitmap (image will be save on storage)
 			Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
 			Bitmap myBitmap32 = bmp.copy(Bitmap.Config.ARGB_8888, true);
+			//then convert into mat for opencv processing
 			Mat image = new Mat(bmp.getHeight(), bmp.getWidth(), CvType.CV_8UC3);
 			Utils.bitmapToMat(myBitmap32, image);
-			Imgproc.cvtColor(image, image, Imgproc.COLOR_BGR2GRAY);
-			ArrayList<MyCircle> circlesList = processingTools.findCircles(image);
+			Imgproc.cvtColor(image, image, Imgproc.COLOR_BGR2GRAY); //color to grayscaled
+			ArrayList<MyCircle> circlesList = processingTools.findCircles(image); //get circles
 
+			//get the path where the image should be save
 			String path = Environment.getExternalStorageDirectory().toString();
 			OutputStream fOutputStream = null;
 			String fileName = "coinsframe.jpg";
@@ -139,6 +155,7 @@ public class CameraActivity extends Activity {
 			}
 
 			try {
+				//save the image
 				fOutputStream = new FileOutputStream(file);
 				bmp.compress(Bitmap.CompressFormat.JPEG, 100, fOutputStream);
 				fOutputStream.flush();
@@ -151,6 +168,7 @@ public class CameraActivity extends Activity {
 				return;
 			}
 
+			//launch the next activity with the image path and the circle list
 			Intent coinChoosingActivity = new Intent(CameraActivity.this, CoinChosingActivity.class);
 			coinChoosingActivity.putExtra("filename", fileName);
 			coinChoosingActivity.putExtra("dirname", dirName);

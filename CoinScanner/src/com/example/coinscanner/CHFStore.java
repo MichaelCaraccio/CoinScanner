@@ -20,7 +20,6 @@ public class CHFStore {
 			map.put(selectedCoin.getRadius() / c.getRadius(), c);
 		}
 		return map;
-
 	}
 
 	public static Coin[] getSortedCoinTab() {
