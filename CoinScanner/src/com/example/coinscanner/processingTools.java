@@ -54,12 +54,12 @@ public class processingTools {
 		// Denoising
 		Photo.fastNlMeansDenoising(img, tmp, 21, 7, 7);
 
-		Imgproc.morphologyEx(img, tmp, Imgproc.MORPH_RECT, kernel, anchor, 2);
-		Imgproc.morphologyEx(tmp, tmp, Imgproc.MORPH_OPEN, kernel, anchor, 3);
+		// Imgproc.morphologyEx(img, tmp, Imgproc.MORPH_RECT, kernel, anchor,
+		// 2);
+		Imgproc.morphologyEx(tmp, tmp, Imgproc.MORPH_OPEN, kernel, anchor, 5);
 
 		// Circles detection using Hough
-		Imgproc.HoughCircles(tmp, circles, Imgproc.CV_HOUGH_GRADIENT, 1.5, 50,
-				100, 90, 20, 120);
+		Imgproc.HoughCircles(tmp, circles, Imgproc.CV_HOUGH_GRADIENT, 1.5, 50, 100, 90, 20, 120);
 
 		// Image gray to color
 		Imgproc.cvtColor(tmp, tmp, Imgproc.COLOR_GRAY2BGR);
@@ -67,11 +67,9 @@ public class processingTools {
 		if (circles.cols() > 0)
 			for (int x = 0; x < circles.cols(); x++) {
 				double vCircle[] = circles.get(0, x);
-				System.out.println(x + ": " + vCircle[0] + " | " + vCircle[1]
-						+ " | " + vCircle[2]);
+				System.out.println(x + ": " + vCircle[0] + " | " + vCircle[1] + " | " + vCircle[2]);
 
-				Point pt = new Point(Math.round(vCircle[0]),
-						Math.round(vCircle[1]));
+				Point pt = new Point(Math.round(vCircle[0]), Math.round(vCircle[1]));
 				float radius = (int) Math.round(vCircle[2]);
 
 				// draw the found circle
@@ -79,8 +77,7 @@ public class processingTools {
 			}
 
 		// Write image on external storage
-		File path = new File(Environment.getExternalStorageDirectory()
-				+ "/Images/");
+		File path = new File(Environment.getExternalStorageDirectory() + "/Images/");
 		path.mkdirs();
 		File file = new File(path, "image.png");
 
@@ -110,29 +107,25 @@ public class processingTools {
 		// Denoising
 		Photo.fastNlMeansDenoising(image, tmp, 21, 7, 7);
 
-		//Imgproc.morphologyEx(image, tmp, Imgproc.MORPH_RECT, kernel, anchor, 4);
+		// Imgproc.morphologyEx(image, tmp, Imgproc.MORPH_RECT, kernel, anchor,
+		// 4);
 		Imgproc.morphologyEx(tmp, tmp, Imgproc.MORPH_OPEN, kernel, anchor, 5);
 
 		// Circles detection using Hough
-		Imgproc.HoughCircles(tmp, circles, Imgproc.CV_HOUGH_GRADIENT, 1.5, 50,
-				100, 90, 10, 120);
+		Imgproc.HoughCircles(tmp, circles, Imgproc.CV_HOUGH_GRADIENT, 1.5, 50, 100, 90, 10, 120);
 
 		ArrayList<MyCircle> circlesList = new ArrayList<MyCircle>();
 		if (circles.cols() > 0) {
 			for (int x = 0; x < circles.cols(); x++) {
 				double vCircle[] = circles.get(0, x);
-				Point pt = new Point(Math.round(vCircle[0]),
-						Math.round(vCircle[1]));
+				Point pt = new Point(Math.round(vCircle[0]), Math.round(vCircle[1]));
 				int radius = (int) Math.round(vCircle[2]);
 				circlesList.add(new MyCircle((int) pt.x, (int) pt.y, radius));
-				
-				Log.d("TAMER", "ca marche bien");
-			}
-		}
-		else
-		{
-			Log.d("TAMER", "ca merde bien");
 
+				Log.d("Detection", "Des pieces ont ete trouvees");
+			}
+		} else {
+			Log.d("Detection", "Aucune piece trouvee");
 		}
 
 		return circlesList;
