@@ -2,12 +2,8 @@ package com.example.coinscanner;
 
 import java.io.Serializable;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+public class MyCircle implements Serializable {
 
-public class MyCircle implements Serializable{
-
-	
 	public MyCircle() {
 		centerX = 0;
 		centerY = 0;
@@ -19,31 +15,28 @@ public class MyCircle implements Serializable{
 		this.centerY = centerY;
 		this.radius = radius;
 	}
-	
-	public int getCenterX()
-	{
+
+	public int getCenterX() {
 		return this.centerX;
 	}
-	
-	public int getCenterY()
-	{
+
+	public int getCenterY() {
 		return this.centerY;
 	}
-	
-	public int getRadius()
-	{
+
+	public int getRadius() {
 		return this.radius;
 	}
-	
-	public boolean isEquals(MyCircle other)
-	{
-		return this.centerX == other.getCenterX() && this.centerY == other.getCenterY() && this.radius == other.getRadius();
+
+	public boolean isEquals(MyCircle other) {
+		return this.centerX == other.getCenterX() && this.centerY == other.getCenterY()
+				&& this.radius == other.getRadius();
 	}
 
 	private int centerX;
 	private int centerY;
 	private int radius;
-	
+
 	/**
 	 * 
 	 */

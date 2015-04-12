@@ -17,7 +17,6 @@ import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -48,9 +47,8 @@ public class CoinChosingActivity extends Activity {
 		circleIndex = -1;
 
 		RelativeLayout layout = (RelativeLayout) findViewById(R.id.canvas_image);
-		Bitmap mainImage = BitmapFactory.decodeFile(getIntent().getStringExtra(
-				"dirname")
-				+ "/" + getIntent().getStringExtra("filename"));
+		Bitmap mainImage = BitmapFactory.decodeFile(getIntent().getStringExtra("dirname") + "/"
+				+ getIntent().getStringExtra("filename"));
 		Bitmap workingCopy = mainImage.copy(Bitmap.Config.ARGB_8888, true);
 
 		Display display = getWindowManager().getDefaultDisplay();
@@ -61,11 +59,9 @@ public class CoinChosingActivity extends Activity {
 		float widthRatio = (float) width / workingCopy.getHeight();
 		float heightRatio = (float) height / workingCopy.getWidth();
 
-		Bitmap screenBitmap = Bitmap.createBitmap(width, height,
-				Bitmap.Config.ARGB_8888);
+		Bitmap screenBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
-		circlesList = (ArrayList<MyCircle>) getIntent().getSerializableExtra(
-				"circles");
+		circlesList = (ArrayList<MyCircle>) getIntent().getSerializableExtra("circles");
 
 		drawingCanvas = new Canvas(screenBitmap);
 		scaleAndRotateMatrix = new Matrix();
@@ -75,14 +71,12 @@ public class CoinChosingActivity extends Activity {
 
 		drawingCanvas.drawBitmap(workingCopy, scaleAndRotateMatrix, null);
 		drawCircles();
-		imageView.setImageDrawable(new BitmapDrawable(getResources(),
-				screenBitmap));
+		imageView.setImageDrawable(new BitmapDrawable(getResources(), screenBitmap));
 		layout.addView(imageView);
 
 		if (circlesList.size() > 0) {
-			Toast.makeText(getApplicationContext(),
-					"Chose a coin and give the value of it !",
-					Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), "Chose a coin and give the value of it !", Toast.LENGTH_LONG)
+					.show();
 			createScaledCirclePoints((widthRatio + heightRatio) / 2);
 			imageView.setOnTouchListener(new OnTouchListener() {
 
@@ -90,10 +84,8 @@ public class CoinChosingActivity extends Activity {
 				public boolean onTouch(View v, MotionEvent event) {
 					int i = 0;
 					for (MyCircle circle : scaledCircleList) {
-						if (Math.sqrt(Math.pow(
-								event.getX() - circle.getCenterX(), 2)
-								+ Math.pow(event.getY() - circle.getCenterY(),
-										2)) <= circle.getRadius()) {
+						if (Math.sqrt(Math.pow(event.getX() - circle.getCenterX(), 2)
+								+ Math.pow(event.getY() - circle.getCenterY(), 2)) <= circle.getRadius()) {
 							builder.show();
 							circleIndex = i;
 						}
@@ -103,8 +95,7 @@ public class CoinChosingActivity extends Activity {
 				}
 			});
 		} else {
-			Toast.makeText(getApplicationContext(),
-					"No coin found, try again !", Toast.LENGTH_LONG).show();
+			Toast.makeText(getApplicationContext(), "No coin found, try again !", Toast.LENGTH_LONG).show();
 		}
 		createPickBox();
 	}
@@ -128,12 +119,11 @@ public class CoinChosingActivity extends Activity {
 					double monneySum = calculateMonneySum(selected, selectedCircle);
 					Toast.makeText(getApplicationContext(), "You own " + monneySum + " CHF", Toast.LENGTH_LONG).show();
 				}
-			}			
+			}
 		});
 	}
-	
-	private double calculateMonneySum(Coin selected,
-			MyCircle selectedCircle) {
+
+	private double calculateMonneySum(Coin selected, MyCircle selectedCircle) {
 		HashMap<Double, Coin> ratios = CHFStore.getRatios(selected);
 		Set<Double> keyset = ratios.keySet();
 		Double[] keys = keyset.toArray(new Double[keyset.size()]);
@@ -142,8 +132,7 @@ public class CoinChosingActivity extends Activity {
 		double monney = 0;
 		for (MyCircle circle : circlesList) {
 			for (Double key : keys) {
-				ratio = (double)selectedCircle.getRadius()
-						/ (double)circle.getRadius();
+				ratio = (double) selectedCircle.getRadius() / (double) circle.getRadius();
 				tmpDiff = Math.abs(ratio - key.doubleValue());
 				if (tmpDiff < diff) {
 					diff = tmpDiff;
@@ -155,7 +144,7 @@ public class CoinChosingActivity extends Activity {
 			diff = 10000;
 			tmpDiff = 0;
 		}
-		
+
 		return monney;
 	}
 
@@ -166,18 +155,15 @@ public class CoinChosingActivity extends Activity {
 		paint.setStrokeWidth(3);
 		drawingCanvas.setMatrix(scaleAndRotateMatrix);
 		for (MyCircle circle : circlesList) {
-			drawingCanvas.drawCircle(circle.getCenterX(), circle.getCenterY(),
-					circle.getRadius(), paint);
+			drawingCanvas.drawCircle(circle.getCenterX(), circle.getCenterY(), circle.getRadius(), paint);
 		}
 	}
 
 	private void createScaledCirclePoints(float scaling) {
 		for (MyCircle circle : circlesList) {
-			float point[] = { (float) circle.getCenterX(),
-					(float) circle.getCenterY() };
+			float point[] = { (float) circle.getCenterX(), (float) circle.getCenterY() };
 			scaleAndRotateMatrix.mapPoints(point);
-			scaledCircleList.add(new MyCircle((int) point[0], (int) point[1],
-					(int) (circle.getRadius() * scaling)));
+			scaledCircleList.add(new MyCircle((int) point[0], (int) point[1], (int) (circle.getRadius() * scaling)));
 		}
 	}
 
@@ -199,5 +185,4 @@ public class CoinChosingActivity extends Activity {
 		}
 		return super.onOptionsItemSelected(item);
 	}
-
 }

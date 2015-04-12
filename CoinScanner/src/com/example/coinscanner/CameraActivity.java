@@ -4,9 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
@@ -20,14 +17,12 @@ import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PictureCallback;
-import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -42,7 +37,7 @@ public class CameraActivity extends Activity {
 	private CameraPreview mPreview;
 	private ImageView MyCameraPreview = null;
 
-	private static final int MAX_HORIZONTAL_SCREEN_RESOLUTION = 2000;
+	//private static final int MAX_HORIZONTAL_SCREEN_RESOLUTION = 2000;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -50,6 +45,7 @@ public class CameraActivity extends Activity {
 		setContentView(R.layout.activity_camera);
 
 		MyCameraPreview = new ImageView(this);
+
 		// Create an instance of Camera
 		mCamera = getCameraInstance();
 		// configureCamera();
@@ -78,11 +74,9 @@ public class CameraActivity extends Activity {
 
 			}
 		});
-
-		preview.addView(MyCameraPreview, new LayoutParams(640, 480));
 	}
 
-	private void configureCamera() {
+	/*private void configureCamera() {
 		Camera.Parameters params = mCamera.getParameters();
 		List<Size> camResolutions = params.getSupportedPictureSizes();
 		Collections.sort(camResolutions, new Comparator<Size>() {
@@ -104,7 +98,7 @@ public class CameraActivity extends Activity {
 		params.setPictureSize(tmp.width, tmp.height);
 		params.setPreviewSize(tmp.width, tmp.height);
 		mCamera.setParameters(params);
-	}
+	}*/
 
 	private PictureCallback mPicture = new PictureCallback() {
 
@@ -165,7 +159,7 @@ public class CameraActivity extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-		
+
 		if (mCamera != null)
 			mCamera.stopPreview();
 	}
@@ -173,7 +167,7 @@ public class CameraActivity extends Activity {
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
+
 		if (mCamera == null)
 			mCamera.startPreview();
 	}

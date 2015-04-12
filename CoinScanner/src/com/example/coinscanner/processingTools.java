@@ -104,17 +104,14 @@ public class processingTools {
 		// Anchor point - Kernel center
 		Point anchor = new Point(-1, -1);
 
-		// Image Colored to grayscale
-		// Imgproc.cvtColor(image, image, Imgproc.COLOR_RGB2GRAY);
-
 		// Temp matrix
 		Mat tmp = new Mat(image.width(), image.height(), image.type());
 
 		// Denoising
 		Photo.fastNlMeansDenoising(image, tmp, 21, 7, 7);
 
-		Imgproc.morphologyEx(image, tmp, Imgproc.MORPH_RECT, kernel, anchor, 2);
-		Imgproc.morphologyEx(tmp, tmp, Imgproc.MORPH_OPEN, kernel, anchor, 3);
+		//Imgproc.morphologyEx(image, tmp, Imgproc.MORPH_RECT, kernel, anchor, 4);
+		Imgproc.morphologyEx(tmp, tmp, Imgproc.MORPH_OPEN, kernel, anchor, 5);
 
 		// Circles detection using Hough
 		Imgproc.HoughCircles(tmp, circles, Imgproc.CV_HOUGH_GRADIENT, 1.5, 50,
@@ -129,12 +126,12 @@ public class processingTools {
 				int radius = (int) Math.round(vCircle[2]);
 				circlesList.add(new MyCircle((int) pt.x, (int) pt.y, radius));
 				
-				Log.d("TAMER", "ça marche bien");
+				Log.d("TAMER", "ca marche bien");
 			}
 		}
 		else
 		{
-			Log.d("TAMER", "ça merde bien");
+			Log.d("TAMER", "ca merde bien");
 
 		}
 
