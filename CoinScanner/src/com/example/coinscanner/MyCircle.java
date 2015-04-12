@@ -2,8 +2,14 @@ package com.example.coinscanner;
 
 import java.io.Serializable;
 
+<<<<<<< HEAD
+public class MyCircle implements Serializable{
+
+	
+=======
 public class MyCircle implements Serializable {
 
+>>>>>>> 75669b94621e91c7146b4f859b8881d411830acf
 	public MyCircle() {
 		centerX = 0;
 		centerY = 0;

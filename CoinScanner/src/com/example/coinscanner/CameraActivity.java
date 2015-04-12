@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import org.opencv.android.Utils;
 import org.opencv.core.CvType;
@@ -17,6 +20,7 @@ import android.graphics.BitmapFactory;
 import android.hardware.Camera;
 import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -37,7 +41,7 @@ public class CameraActivity extends Activity {
 	private CameraPreview mPreview;
 	private ImageView MyCameraPreview = null;
 
-	//private static final int MAX_HORIZONTAL_SCREEN_RESOLUTION = 2000;
+	private static final int MAX_HORIZONTAL_SCREEN_RESOLUTION = 2000;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -48,7 +52,7 @@ public class CameraActivity extends Activity {
 
 		// Create an instance of Camera
 		mCamera = getCameraInstance();
-		// configureCamera();
+		configureCamera();
 
 		// Create our Preview view and set it as the content of our activity.
 		mPreview = new CameraPreview(this, mCamera, MyCameraPreview);
@@ -76,10 +80,11 @@ public class CameraActivity extends Activity {
 		});
 	}
 
-	/*private void configureCamera() {
+	private void configureCamera() {
 		Camera.Parameters params = mCamera.getParameters();
-		List<Size> camResolutions = params.getSupportedPictureSizes();
-		Collections.sort(camResolutions, new Comparator<Size>() {
+		List<Size> pictureResolutions = params.getSupportedPictureSizes();
+		List<Size> previewResolutions = params.getSupportedPreviewSizes();
+		Collections.sort(pictureResolutions, new Comparator<Size>() {
 			@Override
 			public int compare(Size arg0, Size arg1) {
 				if (arg1.width != arg0.width) {
@@ -88,17 +93,33 @@ public class CameraActivity extends Activity {
 				return arg0.height - arg1.height;
 			}
 		});
-		Size tmp = camResolutions.get(0);
-		for (Size s : camResolutions) {
-			if (s.width < MAX_HORIZONTAL_SCREEN_RESOLUTION && s.width > tmp.width) {
-				tmp = s;
+		
+		Collections.sort(previewResolutions, new Comparator<Size>() {
+			@Override
+			public int compare(Size arg0, Size arg1) {
+				if (arg1.width != arg0.width) {
+					return arg0.width - arg1.width;
+				}
+				return arg0.height - arg1.height;
+			}
+		});
+		
+		Size tmpPictureSize = pictureResolutions.get(0);
+		for (Size s : pictureResolutions) {
+			if (s.width < MAX_HORIZONTAL_SCREEN_RESOLUTION && s.width > tmpPictureSize.width) {
+				tmpPictureSize = s;
 			}
 		}
-
-		params.setPictureSize(tmp.width, tmp.height);
-		params.setPreviewSize(tmp.width, tmp.height);
+		params.setPictureSize(tmpPictureSize.width, tmpPictureSize.height);
+		Size tmpPreviewSize = previewResolutions.get(0);
+		for (Size s : previewResolutions) {
+			if (s.width < MAX_HORIZONTAL_SCREEN_RESOLUTION && s.width > tmpPreviewSize.width) {
+				tmpPreviewSize = s;
+			}
+		}
+		params.setPreviewSize(tmpPreviewSize.width, tmpPreviewSize.height);
 		mCamera.setParameters(params);
-	}*/
+	}
 
 	private PictureCallback mPicture = new PictureCallback() {
 
@@ -116,19 +137,15 @@ public class CameraActivity extends Activity {
 			String fileName = "coinsframe.jpg";
 			String dirName = path + "/coinscanner/";
 			File file = new File(dirName, fileName);
-			Log.d("LOL", file.toString());
 			if (!file.exists()) {
 				file.getParentFile().mkdirs();
 			}
 
 			try {
 				fOutputStream = new FileOutputStream(file);
-
 				bmp.compress(Bitmap.CompressFormat.JPEG, 100, fOutputStream);
-
 				fOutputStream.flush();
 				fOutputStream.close();
-
 				MediaStore.Images.Media.insertImage(getContentResolver(), file.getAbsolutePath(), file.getName(),
 						file.getName());
 			} catch (Exception e) {
