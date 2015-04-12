@@ -1,6 +1,7 @@
 package com.example.coinscanner;
 
 import java.io.File;
+import java.util.ArrayList;
 
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
@@ -57,7 +58,8 @@ public class processingTools {
 		Imgproc.morphologyEx(tmp, tmp, Imgproc.MORPH_OPEN, kernel, anchor, 3);
 
 		// Circles detection using Hough
-		Imgproc.HoughCircles(tmp, circles, Imgproc.CV_HOUGH_GRADIENT, 1.5, 50, 100, 90, 20, 120);
+		Imgproc.HoughCircles(tmp, circles, Imgproc.CV_HOUGH_GRADIENT, 1.5, 50,
+				100, 90, 20, 120);
 
 		// Image gray to color
 		Imgproc.cvtColor(tmp, tmp, Imgproc.COLOR_GRAY2BGR);
@@ -65,9 +67,11 @@ public class processingTools {
 		if (circles.cols() > 0)
 			for (int x = 0; x < circles.cols(); x++) {
 				double vCircle[] = circles.get(0, x);
-				System.out.println(x + ": " + vCircle[0] + " | " + vCircle[1] + " | " + vCircle[2]);
+				System.out.println(x + ": " + vCircle[0] + " | " + vCircle[1]
+						+ " | " + vCircle[2]);
 
-				Point pt = new Point(Math.round(vCircle[0]), Math.round(vCircle[1]));
+				Point pt = new Point(Math.round(vCircle[0]),
+						Math.round(vCircle[1]));
 				float radius = (int) Math.round(vCircle[2]);
 
 				// draw the found circle
@@ -75,7 +79,8 @@ public class processingTools {
 			}
 
 		// Write image on external storage
-		File path = new File(Environment.getExternalStorageDirectory() + "/Images/");
+		File path = new File(Environment.getExternalStorageDirectory()
+				+ "/Images/");
 		path.mkdirs();
 		File file = new File(path, "image.png");
 
@@ -88,7 +93,7 @@ public class processingTools {
 		return circles;
 	}
 
-	public static Mat findCircles(Mat image){
+	public static ArrayList<MyCircle> findCircles(Mat image) {
 
 		// Kernel 3x3
 		Mat kernel = Mat.ones(3, 3, CvType.CV_32F);
@@ -100,7 +105,7 @@ public class processingTools {
 		Point anchor = new Point(-1, -1);
 
 		// Image Colored to grayscale
-		//Imgproc.cvtColor(image, image, Imgproc.COLOR_RGB2GRAY);
+		// Imgproc.cvtColor(image, image, Imgproc.COLOR_RGB2GRAY);
 
 		// Temp matrix
 		Mat tmp = new Mat(image.width(), image.height(), image.type());
@@ -110,26 +115,29 @@ public class processingTools {
 
 		Imgproc.morphologyEx(image, tmp, Imgproc.MORPH_RECT, kernel, anchor, 2);
 		Imgproc.morphologyEx(tmp, tmp, Imgproc.MORPH_OPEN, kernel, anchor, 3);
-		
-		// Circles detection using Hough
-		Imgproc.HoughCircles(tmp, circles, Imgproc.CV_HOUGH_GRADIENT, 1.5, 50, 100, 90, 10, 120);
 
-		// Image gray to color
-		/*Imgproc.cvtColor(tmp, tmp, Imgproc.COLOR_GRAY2BGR);
-		if (circles.cols() > 0){
+		// Circles detection using Hough
+		Imgproc.HoughCircles(tmp, circles, Imgproc.CV_HOUGH_GRADIENT, 1.5, 50,
+				100, 90, 10, 120);
+
+		ArrayList<MyCircle> circlesList = new ArrayList<MyCircle>();
+		if (circles.cols() > 0) {
 			for (int x = 0; x < circles.cols(); x++) {
 				double vCircle[] = circles.get(0, x);
-				System.out.println(x + ": " + vCircle[0] + " | " + vCircle[1] + " | " + vCircle[2]);
-
-				Point pt = new Point(Math.round(vCircle[0]), Math.round(vCircle[1]));
-				float radius = (int) Math.round(vCircle[2]);
-
-				// draw the found circle
-				Core.circle(tmp, pt, (int) radius, new Scalar(0, 255, 0), 2);
+				Point pt = new Point(Math.round(vCircle[0]),
+						Math.round(vCircle[1]));
+				int radius = (int) Math.round(vCircle[2]);
+				circlesList.add(new MyCircle((int) pt.x, (int) pt.y, radius));
+				
+				Log.d("TAMER", "ça marche bien");
 			}
-		}else{
-			System.out.println("YOLO Aucun cercle trouve");
-		}*/
-		return circles;
+		}
+		else
+		{
+			Log.d("TAMER", "ça merde bien");
+
+		}
+
+		return circlesList;
 	}
 }

@@ -3,13 +3,25 @@ package com.example.coinscanner;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+import org.opencv.android.Utils;
+import org.opencv.core.CvType;
+import org.opencv.core.Mat;
+import org.opencv.highgui.Highgui;
+import org.opencv.imgproc.Imgproc;
 
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.hardware.Camera;
+import android.hardware.Camera.AutoFocusCallback;
 import android.hardware.Camera.PictureCallback;
+import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -30,6 +42,9 @@ public class CameraActivity extends Activity {
 	private Camera mCamera;
 	private CameraPreview mPreview;
 	private ImageView MyCameraPreview = null;
+	
+	private static final int MAX_HORIZONTAL_SCREEN_RESOLUTION = 2000;
+
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -37,9 +52,10 @@ public class CameraActivity extends Activity {
 		setContentView(R.layout.activity_camera);
 
 		MyCameraPreview = new ImageView(this);
-
 		// Create an instance of Camera
 		mCamera = getCameraInstance();
+		configureCamera();
+
 		// Create our Preview view and set it as the content of our activity.
 		mPreview = new CameraPreview(this, mCamera, MyCameraPreview);
 		FrameLayout preview = (FrameLayout) findViewById(R.id.camera_preview);
@@ -54,7 +70,12 @@ public class CameraActivity extends Activity {
 			@Override
 			public void onClick(View v) {
 				if (mCamera != null) {
-					mCamera.takePicture(null, null, mPicture);
+					mCamera.autoFocus(new AutoFocusCallback() {
+						@Override
+						public void onAutoFocus(boolean success, Camera camera) {
+								camera.takePicture(null, null, mPicture);
+						}
+					});
 				}
 
 			}
@@ -62,14 +83,44 @@ public class CameraActivity extends Activity {
 
 		preview.addView(MyCameraPreview, new LayoutParams(640, 480));
 	}
+	
+	private void configureCamera() {
+		Camera.Parameters params = mCamera.getParameters();
+		List<Size> camResolutions = params.getSupportedPictureSizes();
+		Collections.sort(camResolutions, new Comparator<Size>() {
+			@Override
+			public int compare(Size arg0, Size arg1) {
+				if (arg1.width != arg0.width) {
+					return arg0.width - arg1.width;
+				}
+				return arg0.height - arg1.height;
+			}
+		});
+		Size tmp = camResolutions.get(0);
+		for (Size s : camResolutions) {
+			if (s.width < MAX_HORIZONTAL_SCREEN_RESOLUTION
+					&& s.width > tmp.width) {
+				tmp = s;
+			}
+		}
+
+		params.setPictureSize(tmp.width, tmp.height);
+		params.setPreviewSize(tmp.width, tmp.height);
+		mCamera.setParameters(params);
+	}
 
 	private PictureCallback mPicture = new PictureCallback() {
 
 		@Override
-		public void onPictureTaken(byte[] data, Camera camera) {
-			Bitmap bmp;
-			bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
-
+		public void onPictureTaken(byte[] data, Camera camera) {					
+			Bitmap bmp = BitmapFactory.decodeByteArray(data, 0, data.length);
+			Bitmap myBitmap32 = bmp.copy(Bitmap.Config.ARGB_8888, true);
+			Mat image = new Mat(bmp.getHeight(), bmp.getWidth(),
+					CvType.CV_8UC3);
+			Utils.bitmapToMat(myBitmap32, image);
+			Imgproc.cvtColor(image, image, Imgproc.COLOR_BGR2GRAY);
+			ArrayList<MyCircle> circlesList = processingTools.findCircles(image);
+			
 			String path = Environment.getExternalStorageDirectory().toString();
 			OutputStream fOutputStream = null;
 			String fileName = "coinsframe.jpg";
@@ -97,11 +148,9 @@ public class CameraActivity extends Activity {
 			}
 
 			Intent coinChoosingActivity = new Intent(CameraActivity.this, CoinChosingActivity.class);
-			coinChoosingActivity.putExtra("filename", fileName); // put the
-																	// bitmap
-																	// image in
-																	// datas
+			coinChoosingActivity.putExtra("filename", fileName); 
 			coinChoosingActivity.putExtra("dirname", dirName);
+			coinChoosingActivity.putExtra("circles", circlesList);
 			startActivity(coinChoosingActivity);
 		}
 	};

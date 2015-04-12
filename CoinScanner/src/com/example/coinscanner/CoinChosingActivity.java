@@ -1,35 +1,185 @@
 package com.example.coinscanner;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Set;
+
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Point;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.View.OnTouchListener;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 public class CoinChosingActivity extends Activity {
 
+	private ArrayList<MyCircle> circlesList;
+	private ArrayList<MyCircle> scaledCircleList;
+	Matrix scaleAndRotateMatrix;
+	Canvas drawingCanvas;
+	ImageView imageView;
+	AlertDialog.Builder builder;
+	int circleIndex;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_coin_chosing);
 
-		RelativeLayout canvas = (RelativeLayout) findViewById(R.id.canvas_image);
-		ImageView imageView = new ImageView(getApplicationContext());
-		Bitmap mainImage = BitmapFactory.decodeFile(getIntent().getStringExtra("dirname") + "/"
-				+ getIntent().getStringExtra("filename"));
-		Matrix matrix = new Matrix();
-		matrix.postRotate(90);
-		Bitmap rotated = Bitmap
-				.createBitmap(mainImage, 0, 0, mainImage.getWidth(), mainImage.getHeight(), matrix, true);
-		imageView.setImageBitmap(rotated);
-		canvas.addView(imageView);
+		scaledCircleList = new ArrayList<MyCircle>();
+		imageView = new ImageView(getApplicationContext());
+		circleIndex = -1;
 
-		Toast.makeText(getApplicationContext(), "Chose a coin and give the value of it !", Toast.LENGTH_LONG).show();
+		RelativeLayout layout = (RelativeLayout) findViewById(R.id.canvas_image);
+		Bitmap mainImage = BitmapFactory.decodeFile(getIntent().getStringExtra(
+				"dirname")
+				+ "/" + getIntent().getStringExtra("filename"));
+		Bitmap workingCopy = mainImage.copy(Bitmap.Config.ARGB_8888, true);
+
+		Display display = getWindowManager().getDefaultDisplay();
+		Point size = new Point();
+		display.getSize(size);
+		int width = size.x;
+		int height = size.y;
+		float widthRatio = (float) width / workingCopy.getHeight();
+		float heightRatio = (float) height / workingCopy.getWidth();
+
+		Log.d("MAISWTF", width + " " + height + " " + workingCopy.getWidth()
+				+ " " + workingCopy.getHeight());
+		Bitmap screenBitmap = Bitmap.createBitmap(width, height,
+				Bitmap.Config.ARGB_8888);
+
+		circlesList = (ArrayList<MyCircle>) getIntent().getSerializableExtra(
+				"circles");
+
+		drawingCanvas = new Canvas(screenBitmap);
+		scaleAndRotateMatrix = new Matrix();
+		scaleAndRotateMatrix.postScale(widthRatio, heightRatio);
+		scaleAndRotateMatrix.postRotate(90);
+		scaleAndRotateMatrix.postTranslate(screenBitmap.getWidth(), 0);
+
+		drawingCanvas.drawBitmap(workingCopy, scaleAndRotateMatrix, null);
+		drawCircles();
+		imageView.setImageDrawable(new BitmapDrawable(getResources(),
+				screenBitmap));
+		layout.addView(imageView);
+
+		if (circlesList.size() > 0) {
+			Toast.makeText(getApplicationContext(),
+					"Chose a coin and give the value of it !",
+					Toast.LENGTH_LONG).show();
+			createScaledCirclePoints((widthRatio + heightRatio) / 2);
+			imageView.setOnTouchListener(new OnTouchListener() {
+
+				@Override
+				public boolean onTouch(View v, MotionEvent event) {
+					int i = 0;
+					for (MyCircle circle : scaledCircleList) {
+						if (Math.sqrt(Math.pow(
+								event.getX() - circle.getCenterX(), 2)
+								+ Math.pow(event.getY() - circle.getCenterY(),
+										2)) <= circle.getRadius()) {
+							builder.show();
+							circleIndex = i;
+							Log.d("ASDA", "INDEX " + i);
+						}
+						i++;
+					}
+					return false;
+				}
+			});
+		} else {
+			Toast.makeText(getApplicationContext(),
+					"No coin found, try again !", Toast.LENGTH_LONG).show();
+		}
+
+		createPickBox();
+	}
+
+	private void createPickBox() {
+		final Coin[] coins = CHFStore.getSortedCoinTab();
+		String coinsStr[] = new String[coins.length];
+		int i = 0;
+		for (Coin c : coins) {
+			coinsStr[i++] = c.getDisplay();
+		}
+		builder = new AlertDialog.Builder(this);
+		builder.setTitle("Value of coin");
+		builder.setItems(coinsStr, new OnClickListener() {
+
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				if (circleIndex >= 0) {
+					Coin selected = coins[which];
+					MyCircle selectedCircle = circlesList.get(circleIndex);
+					Log.d("ASDA", selected.getValue()+ " aa " + selectedCircle.getCenterX() + "  "+ selectedCircle.getCenterY());
+					HashMap<Double, Coin> ratios = CHFStore.getRatios(selected);
+					Set<Double> keyset = ratios.keySet();
+					Double[] keys = keyset.toArray(new Double[keyset.size()]);
+					double diff = 10000, tmpDiff = 0;
+					double ratio = 0, coinKey = -1;
+					double monney = 0;
+					for (MyCircle circle : circlesList) {
+						for (Double key : keys) {
+							ratio = (double)selectedCircle.getRadius()
+									/ (double)circle.getRadius();
+							tmpDiff = Math.abs(ratio - key.doubleValue());
+							if (tmpDiff < diff) {
+								diff = tmpDiff;
+								coinKey = key;
+							}
+						}
+						Log.d("LOL", coinKey+"ASDASDASDASDASD"+ratios.get(Double.valueOf(coinKey)).getValue());
+						monney += ratios.get(Double.valueOf(coinKey)).getValue();
+						coinKey = -1;
+						diff = 10000;
+						tmpDiff = 0;
+					}
+					
+					Log.d("WAHOU", monney+"CHF");
+				}
+			}
+		});
+
+	}
+
+	private void drawCircles() {
+		Paint paint = new Paint();
+		paint.setColor(Color.GREEN);
+		paint.setStyle(Paint.Style.STROKE);
+		paint.setStrokeWidth(3);
+		drawingCanvas.setMatrix(scaleAndRotateMatrix);
+		for (MyCircle circle : circlesList) {
+			drawingCanvas.drawCircle(circle.getCenterX(), circle.getCenterY(),
+					circle.getRadius(), paint);
+		}
+	}
+
+	private void createScaledCirclePoints(float scaling) {
+		for (MyCircle circle : circlesList) {
+			float point[] = { (float) circle.getCenterX(),
+					(float) circle.getCenterY() };
+			scaleAndRotateMatrix.mapPoints(point);
+			scaledCircleList.add(new MyCircle((int) point[0], (int) point[1],
+					(int) (circle.getRadius() * scaling)));
+		}
 	}
 
 	@Override
