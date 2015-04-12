@@ -61,8 +61,6 @@ public class CoinChosingActivity extends Activity {
 		float widthRatio = (float) width / workingCopy.getHeight();
 		float heightRatio = (float) height / workingCopy.getWidth();
 
-		Log.d("MAISWTF", width + " " + height + " " + workingCopy.getWidth()
-				+ " " + workingCopy.getHeight());
 		Bitmap screenBitmap = Bitmap.createBitmap(width, height,
 				Bitmap.Config.ARGB_8888);
 
@@ -98,7 +96,6 @@ public class CoinChosingActivity extends Activity {
 										2)) <= circle.getRadius()) {
 							builder.show();
 							circleIndex = i;
-							Log.d("ASDA", "INDEX " + i);
 						}
 						i++;
 					}
@@ -109,7 +106,6 @@ public class CoinChosingActivity extends Activity {
 			Toast.makeText(getApplicationContext(),
 					"No coin found, try again !", Toast.LENGTH_LONG).show();
 		}
-
 		createPickBox();
 	}
 
@@ -129,35 +125,38 @@ public class CoinChosingActivity extends Activity {
 				if (circleIndex >= 0) {
 					Coin selected = coins[which];
 					MyCircle selectedCircle = circlesList.get(circleIndex);
-					Log.d("ASDA", selected.getValue()+ " aa " + selectedCircle.getCenterX() + "  "+ selectedCircle.getCenterY());
-					HashMap<Double, Coin> ratios = CHFStore.getRatios(selected);
-					Set<Double> keyset = ratios.keySet();
-					Double[] keys = keyset.toArray(new Double[keyset.size()]);
-					double diff = 10000, tmpDiff = 0;
-					double ratio = 0, coinKey = -1;
-					double monney = 0;
-					for (MyCircle circle : circlesList) {
-						for (Double key : keys) {
-							ratio = (double)selectedCircle.getRadius()
-									/ (double)circle.getRadius();
-							tmpDiff = Math.abs(ratio - key.doubleValue());
-							if (tmpDiff < diff) {
-								diff = tmpDiff;
-								coinKey = key;
-							}
-						}
-						Log.d("LOL", coinKey+"ASDASDASDASDASD"+ratios.get(Double.valueOf(coinKey)).getValue());
-						monney += ratios.get(Double.valueOf(coinKey)).getValue();
-						coinKey = -1;
-						diff = 10000;
-						tmpDiff = 0;
-					}
-					
-					Log.d("WAHOU", monney+"CHF");
+					double monneySum = calculateMonneySum(selected, selectedCircle);
+					Toast.makeText(getApplicationContext(), "You own " + monneySum + " CHF", Toast.LENGTH_LONG).show();
+				}
+			}			
+		});
+	}
+	
+	private double calculateMonneySum(Coin selected,
+			MyCircle selectedCircle) {
+		HashMap<Double, Coin> ratios = CHFStore.getRatios(selected);
+		Set<Double> keyset = ratios.keySet();
+		Double[] keys = keyset.toArray(new Double[keyset.size()]);
+		double diff = 10000, tmpDiff = 0;
+		double ratio = 0, coinKey = -1;
+		double monney = 0;
+		for (MyCircle circle : circlesList) {
+			for (Double key : keys) {
+				ratio = (double)selectedCircle.getRadius()
+						/ (double)circle.getRadius();
+				tmpDiff = Math.abs(ratio - key.doubleValue());
+				if (tmpDiff < diff) {
+					diff = tmpDiff;
+					coinKey = key;
 				}
 			}
-		});
-
+			monney += ratios.get(Double.valueOf(coinKey)).getValue();
+			coinKey = -1;
+			diff = 10000;
+			tmpDiff = 0;
+		}
+		
+		return monney;
 	}
 
 	private void drawCircles() {
