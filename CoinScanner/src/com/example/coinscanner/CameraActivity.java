@@ -68,12 +68,16 @@ public class CameraActivity extends Activity {
 			public void onClick(View v) {
 				//on click if camera is not null autofocus and take picture
 				if (mCamera != null) {
-					mCamera.autoFocus(new AutoFocusCallback() {
+					
+					// Without autoFocus
+					mCamera.takePicture(null, null, mPicture);
+					
+					/*mCamera.autoFocus(new AutoFocusCallback() {
 						@Override
 						public void onAutoFocus(boolean success, Camera camera) {
 							camera.takePicture(null, null, mPicture);
 						}
-					});
+					});*/
 				}
 
 			}
