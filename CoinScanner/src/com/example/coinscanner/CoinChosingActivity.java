@@ -29,7 +29,7 @@ import android.widget.Toast;
 
 public class CoinChosingActivity extends Activity {
 
-	//attributes
+	// attributes
 	private ArrayList<MyCircle> circlesList;
 	private ArrayList<MyCircle> scaledCircleList;
 	Matrix scaleAndRotateMatrix;
@@ -37,6 +37,7 @@ public class CoinChosingActivity extends Activity {
 	ImageView imageView;
 	AlertDialog.Builder builder;
 	int circleIndex;
+	private Paint paint;
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -44,18 +45,25 @@ public class CoinChosingActivity extends Activity {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_coin_chosing);
 
+		paint = new Paint();
+		paint.setColor(Color.GREEN);
+		paint.setStyle(Paint.Style.STROKE);
+		paint.setStrokeWidth(3);
+		paint.setTextSize(20);
+
 		scaledCircleList = new ArrayList<MyCircle>();
 		imageView = new ImageView(getApplicationContext());
 		circleIndex = -1;
 
 		RelativeLayout layout = (RelativeLayout) findViewById(R.id.canvas_image);
-		//open the image saved in CameraActivity using filepath in extras
+		// open the image saved in CameraActivity using filepath in extras
 		Bitmap mainImage = BitmapFactory.decodeFile(getIntent().getStringExtra("dirname") + "/"
 				+ getIntent().getStringExtra("filename"));
-		//create a muable copy of image
+		// create a muable copy of image
 		Bitmap workingCopy = mainImage.copy(Bitmap.Config.ARGB_8888, true);
 
-		//calculate ratios for scaling the image in fullscreen (even if proportions are lost)
+		// calculate ratios for scaling the image in fullscreen (even if
+		// proportions are lost)
 		Display display = getWindowManager().getDefaultDisplay();
 		Point size = new Point();
 		display.getSize(size);
@@ -64,47 +72,51 @@ public class CoinChosingActivity extends Activity {
 		float widthRatio = (float) width / workingCopy.getHeight();
 		float heightRatio = (float) height / workingCopy.getWidth();
 
-		//create an empty bitmap with the size of screen to draw on it
+		// create an empty bitmap with the size of screen to draw on it
 		Bitmap screenBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 
-		//get circles from extras
+		// get circles from extras
 		circlesList = (ArrayList<MyCircle>) getIntent().getSerializableExtra("circles");
 
-		//create new Canvas with the empty bitmap into it
+		// create new Canvas with the empty bitmap into it
 		drawingCanvas = new Canvas(screenBitmap);
-		//create the transformations matrix
+		// create the transformations matrix
 		scaleAndRotateMatrix = new Matrix();
 		scaleAndRotateMatrix.postScale(widthRatio, heightRatio);
 		scaleAndRotateMatrix.postRotate(90);
 		scaleAndRotateMatrix.postTranslate(screenBitmap.getWidth(), 0);
 
-		//draw the image (scaled and rotated by matrix)
+		// draw the image (scaled and rotated by matrix)
 		drawingCanvas.drawBitmap(workingCopy, scaleAndRotateMatrix, null);
-		//draw cirlces (detected coins)
+
+		drawingCanvas.setMatrix(scaleAndRotateMatrix);
+
+		// draw cirlces (detected coins)
 		drawCircles();
-		
-		//set the bitmap in the view
+
+		// set the bitmap in the view
 		imageView.setImageDrawable(new BitmapDrawable(getResources(), screenBitmap));
-		//add the view in layout
+		// add the view in layout
 		layout.addView(imageView);
 
 		// if we have atleast one circle (one coin)
 		if (circlesList.size() > 0) {
-			//inform the user that he can pick one and give his value
-			Toast.makeText(getApplicationContext(), "Chose a coin and give the value of it !", Toast.LENGTH_LONG)
+			// inform the user that he can pick one and give his value
+			Toast.makeText(getApplicationContext(), "Choose a coin and give the value of it !", Toast.LENGTH_LONG)
 					.show();
 			createScaledCirclePoints((widthRatio + heightRatio) / 2);
 			imageView.setOnTouchListener(new OnTouchListener() {
 
-				//add a listener on the touchscreen event
+				// add a listener on the touchscreen event
 				@Override
 				public boolean onTouch(View v, MotionEvent event) {
-					//check if event pos are in a circle
+					// check if event pos are in a circle
 					int i = 0;
 					for (MyCircle circle : scaledCircleList) {
 						if (Math.sqrt(Math.pow(event.getX() - circle.getCenterX(), 2)
 								+ Math.pow(event.getY() - circle.getCenterY(), 2)) <= circle.getRadius()) {
-							builder.show(); //if a circle was picked show a box to chose a value
+							builder.show(); // if a circle was picked show a box
+											// to chose a value
 							circleIndex = i;
 						}
 						i++;
@@ -132,13 +144,13 @@ public class CoinChosingActivity extends Activity {
 		builder.setTitle("Value of coin");
 		builder.setItems(coinsStr, new OnClickListener() {
 
-			//as soon as a value is selected for a coin
+			// as soon as a value is selected for a coin
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				if (circleIndex >= 0) {
 					Coin selected = coins[which];
 					MyCircle selectedCircle = circlesList.get(circleIndex);
-					//launch calculation process and display it in a toast
+					// launch calculation process and display it in a toast
 					double monneySum = calculateMonneySum(selected, selectedCircle);
 					Toast.makeText(getApplicationContext(), "You own " + String.format("%.2f", monneySum) + " CHF",
 							Toast.LENGTH_LONG).show();
@@ -148,40 +160,50 @@ public class CoinChosingActivity extends Activity {
 	}
 
 	/**
-	 * Calculate the monney sum based on the selected circle and his value
-	 * The calculation use ratios between circles diameters according to real ratios between swiss coins diameters to determine
-	 * the value of each circles found
+	 * Calculate the monney sum based on the selected circle and his value The
+	 * calculation use ratios between circles diameters according to real ratios
+	 * between swiss coins diameters to determine the value of each circles
+	 * found
+	 * 
 	 * @param selected
 	 * @param selectedCircle
 	 * @return
 	 */
 	private double calculateMonneySum(Coin selected, MyCircle selectedCircle) {
-		//get the selected coin related ratios (according to the real diameter of swiss coin)
-		//the ratios are the keys of the map
+		// get the selected coin related ratios (according to the real diameter
+		// of swiss coin)
+		// the ratios are the keys of the map
 		HashMap<Double, Coin> ratios = CHFStore.getRatios(selected);
 		Set<Double> keyset = ratios.keySet();
 		Double[] keys = keyset.toArray(new Double[keyset.size()]);
-		//initialize vars
+		// initialize vars
 		double diff = 10000, tmpDiff = 0;
 		double ratio = 0, coinKey = -1;
 		double monney = 0;
-		//for each detected circle
+
+		// for each detected circle
 		for (MyCircle circle : circlesList) {
-			//for each real ratios
+			// for each real ratios
 			for (Double key : keys) {
-				//calculate the ratio between the selected circle on image and others circles
+				// calculate the ratio between the selected circle on image and
+				// others circles
 				ratio = (double) selectedCircle.getRadius() / (double) circle.getRadius();
-				//calculate the difference between real ratio and detected circles ratio
+				// calculate the difference between real ratio and detected
+				// circles ratio
 				tmpDiff = Math.abs(ratio - key.doubleValue());
-				//save the ratio with the smallest difference
+				// save the ratio with the smallest difference
 				if (tmpDiff < diff) {
 					diff = tmpDiff;
 					coinKey = key;
 				}
 			}
-			//the coin value is the coin with the ratio that is the closest to the real ratio
-			monney += ratios.get(Double.valueOf(coinKey)).getValue(); //add the coin value
-			//reset vars
+			// the coin value is the coin with the ratio that is the closest to
+			// the real ratio
+			monney += ratios.get(Double.valueOf(coinKey)).getValue(); // add the
+																		// coin
+																		// value
+
+			// reset vars
 			coinKey = -1;
 			diff = 10000;
 			tmpDiff = 0;
@@ -191,21 +213,18 @@ public class CoinChosingActivity extends Activity {
 	}
 
 	private void drawCircles() {
-		//initialize a painter
-		Paint paint = new Paint();
-		paint.setColor(Color.GREEN);
-		paint.setStyle(Paint.Style.STROKE);
-		paint.setStrokeWidth(3);
-		drawingCanvas.setMatrix(scaleAndRotateMatrix);
-		//draw circles
+
+		// draw circles
 		for (MyCircle circle : circlesList) {
 			drawingCanvas.drawCircle(circle.getCenterX(), circle.getCenterY(), circle.getRadius(), paint);
 		}
 	}
 
 	/**
-	 * create the list of scaled circle (with transform matrix) for the touchscreen selection event
-	 * because the selection is done on scaled picture
+	 * create the list of scaled circle (with transform matrix) for the
+	 * touchscreen selection event because the selection is done on scaled
+	 * picture
+	 * 
 	 * @param scaling
 	 */
 	private void createScaledCirclePoints(float scaling) {
