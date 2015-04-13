@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 public class CHFStore {
 
-	public static final Coin fiveCents = new Coin("0.05 CHF", 0.05, 8.475);
+	public static final Coin fiveCents = new Coin("0.05 CHF", 0.05, 8.575);
 	public static final Coin tenCents = new Coin("0.10 CHF", 0.10, 9.575);
 	public static final Coin twentyCents = new Coin("0.20 CHF", 0.20, 10.525);
 	public static final Coin fiftyCents = new Coin("0.50 CHF", 0.50, 9.1);
@@ -33,6 +33,16 @@ public class CHFStore {
 		tab[6] = fiveFrancs;
 
 		return tab;
+	}
+	
+	public static double[] getMinMaxRadius()
+	{
+		Coin[] tab = getSortedCoinTab();
+		double[] minMax = new double[2];
+		minMax[0] = tab[0].getRadius();
+		minMax[1] = tab[tab.length-1].getRadius();
+		
+		return minMax;
 	}
 
 }

@@ -111,7 +111,7 @@ public class processingTools {
 		Imgproc.morphologyEx(tmp, tmp, Imgproc.MORPH_OPEN, kernel, anchor, 5);
 
 		// Circles detection using Hough
-		Imgproc.HoughCircles(tmp, circles, Imgproc.CV_HOUGH_GRADIENT, 1.5, 40, 100, 80, 20, 160);
+		Imgproc.HoughCircles(tmp, circles, Imgproc.CV_HOUGH_GRADIENT, 1.5, 40, 100, 80, 20, 200);
 
 		ArrayList<MyCircle> circlesList = new ArrayList<MyCircle>();
 		if (circles.cols() > 0) {
