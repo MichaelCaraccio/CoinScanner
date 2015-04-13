@@ -108,10 +108,10 @@ public class processingTools {
 		Photo.fastNlMeansDenoising(image, tmp, 21, 7, 7);
 
 		//Imgproc.morphologyEx(image, tmp, Imgproc.MORPH_RECT, kernel, anchor, 1);
-		Imgproc.morphologyEx(tmp, tmp, Imgproc.MORPH_OPEN, kernel, anchor, 4);
+		Imgproc.morphologyEx(tmp, tmp, Imgproc.MORPH_OPEN, kernel, anchor, 5);
 
 		// Circles detection using Hough
-		Imgproc.HoughCircles(tmp, circles, Imgproc.CV_HOUGH_GRADIENT, 1.5, 50, 100, 80, 10, 160);
+		Imgproc.HoughCircles(tmp, circles, Imgproc.CV_HOUGH_GRADIENT, 1.5, 40, 100, 80, 20, 200);
 
 		ArrayList<MyCircle> circlesList = new ArrayList<MyCircle>();
 		if (circles.cols() > 0) {
@@ -120,9 +120,8 @@ public class processingTools {
 				Point pt = new Point(Math.round(vCircle[0]), Math.round(vCircle[1]));
 				int radius = (int) Math.round(vCircle[2]);
 				circlesList.add(new MyCircle((int) pt.x, (int) pt.y, radius));
-				System.out.println(x + ": " + vCircle[0] + " | " + vCircle[1] + " | " + vCircle[2]);
 
-				//Log.d("Detection", "Des pieces ont ete trouvees");
+				Log.d("Detection", "Des pieces ont ete trouvees");
 			}
 		} else {
 			Log.d("Detection", "Aucune piece trouvee");

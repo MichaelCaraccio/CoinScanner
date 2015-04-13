@@ -34,5 +34,15 @@ public class CHFStore {
 
 		return tab;
 	}
+	
+	public static double[] getMinMaxRadius()
+	{
+		Coin[] tab = getSortedCoinTab();
+		double[] minMax = new double[2];
+		minMax[0] = tab[0].getRadius();
+		minMax[1] = tab[tab.length-1].getRadius();
+		
+		return minMax;
+	}
 
 }
