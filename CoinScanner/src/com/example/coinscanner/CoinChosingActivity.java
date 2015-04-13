@@ -174,7 +174,7 @@ public class CoinChosingActivity extends Activity {
 				//calculate the difference between real ratio and detected circles ratio
 				tmpDiff = Math.abs(ratio - key.doubleValue());
 				//save the ratio with the smallest difference
-				if (tmpDiff < diff) {
+				if (tmpDiff <= diff) {
 					diff = tmpDiff;
 					coinKey = key;
 				}
